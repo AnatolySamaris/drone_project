@@ -37,7 +37,7 @@ class HandGestureDetector(Node):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.get_logger().info(f"USING {self.device.upper()}")
         
-        self.safe_speed = 5
+        self.safe_speed = 1
         self.safe_mode = True	# speed always = safe_speed
         self.simulation = False
         self.get_logger().info(f"SIMULATION MODE: << {'on' if self.simulation else 'off'} >>")
@@ -53,7 +53,7 @@ class HandGestureDetector(Node):
             5: 'five', 6: 'ok', 7: 'rock', 8: 'thumbs_up'
         }
 
-        self.min_angle_degrees = 5 # Минимальное значение эйлерова угла
+        self.min_angle_degrees = 15 # Минимальное значение эйлерова угла
         self.max_angle_degrees = 30 # Максимальное значение эйлерова угла
         self.min_palm_height = 15   # Минимальное расстояние от камеры в сантиметрах
         self.max_palm_height = 60   # Максимальное расстояние от камеры в сантиметрах
@@ -103,7 +103,7 @@ class HandGestureDetector(Node):
         self.last_subgesture = None
         
         self.control_timer = None
-        self.control_timer_duration = 8
+        self.control_timer_duration = 5
         self.takeoff_height = 1         # Насколько взлетать в метрах
         self.takeoff_land_period = 5    # Сколько секунд блокируется управление при takeoff/land
         self.speed = 1
@@ -115,7 +115,7 @@ class HandGestureDetector(Node):
 
         # Визуализация управления
         self.show_camera_processing = True
-        self.control_panel_size = 300 #600
+        self.control_panel_size = 250 #600
         self.control_panel_height = self.control_panel_size
         self.control_panel_width = int(1.8 * self.control_panel_size)
         self.control_panel = None
@@ -241,12 +241,16 @@ class HandGestureDetector(Node):
                 
                 # Управление дроном
                 if self.takeoff and (self.control_mode or self.control_timer):  # Дрон в воздухе, Control Mode
-                    if gesture_id == 2: # Выход в Command Mode
+                    if gesture_id == 1: # Выход в Command Mode
                         self.control_mode = False
+                        self.control_timer = None
                     else:   # Управление
                         throttle, roll, pitch, yaw = self.calculate_angles(hand_landmarks, depth_im)
                         
-                        throttle = 10 * (self.max_palm_height + self.min_palm_height) / 2
+                        #throttle = 10 * (self.max_palm_height + self.min_palm_height) / 2
+                        #roll = 0
+                        #pitch = 0
+                        #yaw = 0
                         
                         t, p, r, y = self.publish_control(throttle, roll, pitch, yaw)
                         t, p, r, y = round(t, 2), round(p, 2), round(r, 2), round(y, 2)
@@ -274,12 +278,17 @@ class HandGestureDetector(Node):
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                             )
                 else:
+                    if self.takeoff:
+                        self.publish_control(
+                            10 * (self.max_palm_height + self.min_palm_height) / 2,
+                            0, 0, 0
+                        )
                     if self.last_gesture == 6:   # OK
-                        if gesture_id == 8 and self.last_subgesture != 8: # THUMBS UP
-                            self.publish_command('disarm' if self.arm else 'arm')
-                            self.last_subgesture = gesture_id
-                            self.last_gesture = None
-                        elif gesture_id == 1 and self.last_subgesture != 1:   # Takeoff
+                        #if gesture_id == 8 and self.last_subgesture != 8: # THUMBS UP
+                        #    self.publish_command('disarm' if self.arm else 'arm')
+                        #    self.last_subgesture = gesture_id
+                        #    self.last_gesture = None
+                        if gesture_id == 1 and self.last_subgesture != 1:   # Takeoff
                             self.publish_command('takeoff')
                             self.last_subgesture = gesture_id
                             self.last_gesture = None
@@ -294,12 +303,16 @@ class HandGestureDetector(Node):
                             self.publish_command('speed', gesture_id)
                             self.last_subgesture = gesture_id
                             self.last_gesture = None
-                        elif gesture_id == 8 and self.last_subgesture != 8:   # THUMBS UP
-                            self.control_timer = time.time()
-                            self.last_subgesture == gesture_id
-                            self.last_gesture = None
+                        #elif gesture_id == 8 and self.last_subgesture != 8:   # THUMBS UP
+                        #    self.control_timer = time.time()
+                        #    self.last_subgesture = gesture_id
+                        #    self.last_gesture = None
                         else:
                             pass
+                    elif gesture_id == 8 and self.last_subgesture != 8:	# THUMBS UP
+                        self.control_timer = time.time()
+                        self.last_subgesture = gesture_id
+                        self.last_gesture = None
                     if self.show_camera_processing:
                         status_ = "DISARMED"
                         if self.takeoff: status_ = "TAKEOFF"
@@ -466,7 +479,7 @@ class HandGestureDetector(Node):
         # Нормализация газа от -1 до 1, где <0 - снижение, >0 - подъем
         throttle = throttle / 10    # мм -> см
         throttle = self.normalize_value(throttle, self.min_palm_height, self.max_palm_height)
-        throttle = throttle if abs(throttle) > 0.1 else 0  # Если газ мал, игнорируем его
+        throttle = throttle if abs(throttle) > 0.25 else 0  # Если газ мал, игнорируем его
         throttle = np.clip(throttle, -self.speed, self.speed)   # Насыщение (ограничение) газа
 
         # Нормализация крена, тангажа, рыскания от -1 до 1
@@ -499,13 +512,13 @@ class HandGestureDetector(Node):
         # Визуализация управления
         self.update_control_panel(throttle, roll, pitch, yaw)
 
-        speed_coef = 10 * self.speed
+        speed_coef = 50 * self.speed
 
         # Передача управления на коптер
         cmd.linear.z = float(speed_coef * throttle)
-        cmd.linear.x = float(speed_coef * pitch)
-        cmd.linear.y = float(speed_coef * roll) if not self.simulation else -float(speed_coef * roll)
-        cmd.angular.z = float(speed_coef * yaw)
+        cmd.linear.y = float(speed_coef * pitch)
+        cmd.linear.x = -float(speed_coef * roll) if not self.simulation else -float(speed_coef * roll)
+        cmd.angular.z = -float(speed_coef * yaw)
 
         if self.simulation:
             self.cmd_pub.publish(cmd)
