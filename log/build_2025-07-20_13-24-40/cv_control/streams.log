@@ -1,0 +1,21 @@
+[1.490s] Invoking command in '/home/jetson/drone_project/src/cv_control': PYTHONPATH=/home/jetson/drone_project/build/cv_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/cv_control build --build-base /home/jetson/drone_project/build/cv_control/build install --record /home/jetson/drone_project/build/cv_control/install.log --single-version-externally-managed install_data
+[1.903s] running egg_info
+[1.905s] writing ../../build/cv_control/cv_control.egg-info/PKG-INFO
+[1.905s] writing dependency_links to ../../build/cv_control/cv_control.egg-info/dependency_links.txt
+[1.906s] writing entry points to ../../build/cv_control/cv_control.egg-info/entry_points.txt
+[1.906s] writing requirements to ../../build/cv_control/cv_control.egg-info/requires.txt
+[1.906s] writing top-level names to ../../build/cv_control/cv_control.egg-info/top_level.txt
+[1.909s] reading manifest file '../../build/cv_control/cv_control.egg-info/SOURCES.txt'
+[1.911s] writing manifest file '../../build/cv_control/cv_control.egg-info/SOURCES.txt'
+[1.911s] running build
+[1.911s] running build_py
+[1.911s] running install
+[1.912s] running install_lib
+[1.914s] running install_data
+[1.914s] running install_egg_info
+[1.917s] removing '/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info' (and everything under it)
+[1.918s] Copying ../../build/cv_control/cv_control.egg-info to /home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info
+[1.920s] running install_scripts
+[1.963s] Installing gesture_detector script to /home/jetson/drone_project/install/cv_control/lib/cv_control
+[1.964s] writing list of installed files to '/home/jetson/drone_project/build/cv_control/install.log'
+[2.046s] Invoked command in '/home/jetson/drone_project/src/cv_control' returned '0': PYTHONPATH=/home/jetson/drone_project/build/cv_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/cv_control build --build-base /home/jetson/drone_project/build/cv_control/build install --record /home/jetson/drone_project/build/cv_control/install.log --single-version-externally-managed install_data

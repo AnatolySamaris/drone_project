@@ -24,3 +24,8 @@ ros2 launch my_realsense rs_launch.py
 
 # Запуск ноды управления дроном
 ros2 run cv_control gesture_detector
+
+# =======================================
+# === LIBREALSENSE PATCHES FOR JETSON ===
+# =======================================
+https://github.com/jetsonhacks/jetson-orin-librealsense

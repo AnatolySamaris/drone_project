@@ -1,0 +1,35 @@
+[1.486s] Invoking command in '/home/jetson/drone_project/src/my_realsense': PYTHONPATH=/home/jetson/drone_project/build/my_realsense/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_realsense build --build-base /home/jetson/drone_project/build/my_realsense/build install --record /home/jetson/drone_project/build/my_realsense/install.log --single-version-externally-managed install_data
+[1.875s] running egg_info
+[1.877s] creating ../../build/my_realsense/my_realsense.egg-info
+[1.877s] writing ../../build/my_realsense/my_realsense.egg-info/PKG-INFO
+[1.877s] writing dependency_links to ../../build/my_realsense/my_realsense.egg-info/dependency_links.txt
+[1.877s] writing entry points to ../../build/my_realsense/my_realsense.egg-info/entry_points.txt
+[1.878s] writing requirements to ../../build/my_realsense/my_realsense.egg-info/requires.txt
+[1.878s] writing top-level names to ../../build/my_realsense/my_realsense.egg-info/top_level.txt
+[1.878s] writing manifest file '../../build/my_realsense/my_realsense.egg-info/SOURCES.txt'
+[1.881s] reading manifest file '../../build/my_realsense/my_realsense.egg-info/SOURCES.txt'
+[1.882s] writing manifest file '../../build/my_realsense/my_realsense.egg-info/SOURCES.txt'
+[1.882s] running build
+[1.882s] running build_py
+[1.882s] creating /home/jetson/drone_project/build/my_realsense/build
+[1.882s] creating /home/jetson/drone_project/build/my_realsense/build/lib
+[1.883s] creating /home/jetson/drone_project/build/my_realsense/build/lib/my_realsense
+[1.883s] copying my_realsense/__init__.py -> /home/jetson/drone_project/build/my_realsense/build/lib/my_realsense
+[1.883s] running install
+[1.883s] running install_lib
+[1.885s] creating /home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages/my_realsense
+[1.885s] copying /home/jetson/drone_project/build/my_realsense/build/lib/my_realsense/__init__.py -> /home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages/my_realsense
+[1.886s] byte-compiling /home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages/my_realsense/__init__.py to __init__.cpython-310.pyc
+[1.886s] running install_data
+[1.886s] creating /home/jetson/drone_project/install/my_realsense/share/ament_index
+[1.886s] creating /home/jetson/drone_project/install/my_realsense/share/ament_index/resource_index
+[1.887s] creating /home/jetson/drone_project/install/my_realsense/share/ament_index/resource_index/packages
+[1.887s] copying resource/my_realsense -> /home/jetson/drone_project/install/my_realsense/share/ament_index/resource_index/packages
+[1.887s] copying package.xml -> /home/jetson/drone_project/install/my_realsense/share/my_realsense
+[1.887s] creating /home/jetson/drone_project/install/my_realsense/share/my_realsense/launch
+[1.887s] copying launch/rs_launch.py -> /home/jetson/drone_project/install/my_realsense/share/my_realsense/launch
+[1.887s] running install_egg_info
+[1.891s] Copying ../../build/my_realsense/my_realsense.egg-info to /home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages/my_realsense-0.0.0-py3.10.egg-info
+[1.892s] running install_scripts
+[1.928s] writing list of installed files to '/home/jetson/drone_project/build/my_realsense/install.log'
+[1.995s] Invoked command in '/home/jetson/drone_project/src/my_realsense' returned '0': PYTHONPATH=/home/jetson/drone_project/build/my_realsense/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_realsense build --build-base /home/jetson/drone_project/build/my_realsense/build install --record /home/jetson/drone_project/build/my_realsense/install.log --single-version-externally-managed install_data

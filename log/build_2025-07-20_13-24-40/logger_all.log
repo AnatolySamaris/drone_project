@@ -1,0 +1,219 @@
+[0.168s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build']
+[0.168s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=6, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0xffffa3964550>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0xffffa3964040>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0xffffa3964040>>)
+[0.431s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.431s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.431s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.431s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.432s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.432s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.432s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/jetson/drone_project'
+[0.432s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.432s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.432s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.432s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.432s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.432s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.433s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.433s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.433s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extensions ['ignore', 'ignore_ament_install']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extension 'ignore'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extension 'ignore_ament_install'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extensions ['colcon_pkg']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extension 'colcon_pkg'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extensions ['colcon_meta']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extension 'colcon_meta'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extensions ['ros']
+[0.455s] Level 1:colcon.colcon_core.package_identification:_identify(src/cv_control) by extension 'ros'
+[0.459s] DEBUG:colcon.colcon_core.package_identification:Package 'src/cv_control' with type 'ros.ament_python' and name 'cv_control'
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extensions ['ignore', 'ignore_ament_install']
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'ignore'
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'ignore_ament_install'
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extensions ['colcon_pkg']
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'colcon_pkg'
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extensions ['colcon_meta']
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'colcon_meta'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extensions ['ros']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'ros'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extensions ['cmake', 'python']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'cmake'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'python'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extensions ['python_setup_py']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world) by extension 'python_setup_py'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extensions ['ignore', 'ignore_ament_install']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'ignore'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'ignore_ament_install'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extensions ['colcon_pkg']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'colcon_pkg'
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extensions ['colcon_meta']
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'colcon_meta'
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extensions ['ros']
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'ros'
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extensions ['cmake', 'python']
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'cmake'
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'python'
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extensions ['python_setup_py']
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop) by extension 'python_setup_py'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extensions ['ignore', 'ignore_ament_install']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'ignore'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'ignore_ament_install'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extensions ['colcon_pkg']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'colcon_pkg'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extensions ['colcon_meta']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'colcon_meta'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extensions ['ros']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'ros'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extensions ['cmake', 'python']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'cmake'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'python'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extensions ['python_setup_py']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/drone-world/quadcopter-teleop/thumbnails) by extension 'python_setup_py'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extensions ['ignore', 'ignore_ament_install']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extension 'ignore'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extension 'ignore_ament_install'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extensions ['colcon_pkg']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extension 'colcon_pkg'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extensions ['colcon_meta']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extension 'colcon_meta'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extensions ['ros']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_realsense) by extension 'ros'
+[0.468s] DEBUG:colcon.colcon_core.package_identification:Package 'src/my_realsense' with type 'ros.ament_python' and name 'my_realsense'
+[0.468s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.468s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.468s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.468s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.468s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.527s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.527s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.530s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 1 installed packages in /home/jetson/drone_project/install
+[0.532s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 290 installed packages in /opt/ros/humble
+[0.534s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.593s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'cmake_args' from command line to 'None'
+[0.593s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'cmake_target' from command line to 'None'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'cmake_clean_cache' from command line to 'False'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'cmake_clean_first' from command line to 'False'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'cmake_force_configure' from command line to 'False'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'ament_cmake_args' from command line to 'None'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'catkin_cmake_args' from command line to 'None'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'cv_control' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.594s] DEBUG:colcon.colcon_core.verb:Building package 'cv_control' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/jetson/drone_project/build/cv_control', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/jetson/drone_project/install/cv_control', 'merge_install': False, 'path': '/home/jetson/drone_project/src/cv_control', 'symlink_install': False, 'test_result_base': None}
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'cmake_args' from command line to 'None'
+[0.594s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'cmake_target' from command line to 'None'
+[0.595s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.595s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'cmake_clean_cache' from command line to 'False'
+[0.595s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'cmake_clean_first' from command line to 'False'
+[0.595s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'cmake_force_configure' from command line to 'False'
+[0.595s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'ament_cmake_args' from command line to 'None'
+[0.595s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'catkin_cmake_args' from command line to 'None'
+[0.595s] Level 5:colcon.colcon_core.verb:set package 'my_realsense' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.595s] DEBUG:colcon.colcon_core.verb:Building package 'my_realsense' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/jetson/drone_project/build/my_realsense', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/jetson/drone_project/install/my_realsense', 'merge_install': False, 'path': '/home/jetson/drone_project/src/my_realsense', 'symlink_install': False, 'test_result_base': None}
+[0.595s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.597s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.598s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/jetson/drone_project/src/cv_control' with build type 'ament_python'
+[0.598s] Level 1:colcon.colcon_core.shell:create_environment_hook('cv_control', 'ament_prefix_path')
+[0.601s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.601s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/cv_control/share/cv_control/hook/ament_prefix_path.ps1'
+[0.602s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jetson/drone_project/install/cv_control/share/cv_control/hook/ament_prefix_path.dsv'
+[0.603s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/cv_control/share/cv_control/hook/ament_prefix_path.sh'
+[0.604s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.605s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.609s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/jetson/drone_project/src/my_realsense' with build type 'ament_python'
+[0.610s] Level 1:colcon.colcon_core.shell:create_environment_hook('my_realsense', 'ament_prefix_path')
+[0.610s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/my_realsense/share/my_realsense/hook/ament_prefix_path.ps1'
+[0.612s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jetson/drone_project/install/my_realsense/share/my_realsense/hook/ament_prefix_path.dsv'
+[0.613s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/my_realsense/share/my_realsense/hook/ament_prefix_path.sh'
+[0.614s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.614s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.048s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/jetson/drone_project/src/cv_control'
+[1.049s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.049s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.488s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/jetson/drone_project/src/my_realsense'
+[1.489s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.490s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[2.089s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/jetson/drone_project/src/cv_control': PYTHONPATH=/home/jetson/drone_project/build/cv_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/cv_control build --build-base /home/jetson/drone_project/build/cv_control/build install --record /home/jetson/drone_project/build/cv_control/install.log --single-version-externally-managed install_data
+[2.096s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/jetson/drone_project/src/my_realsense': PYTHONPATH=/home/jetson/drone_project/build/my_realsense/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_realsense build --build-base /home/jetson/drone_project/build/my_realsense/build install --record /home/jetson/drone_project/build/my_realsense/install.log --single-version-externally-managed install_data
+[2.605s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/jetson/drone_project/src/my_realsense' returned '0': PYTHONPATH=/home/jetson/drone_project/build/my_realsense/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_realsense build --build-base /home/jetson/drone_project/build/my_realsense/build install --record /home/jetson/drone_project/build/my_realsense/install.log --single-version-externally-managed install_data
+[2.613s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/my_realsense' for CMake module files
+[2.615s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/my_realsense' for CMake config files
+[2.617s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/my_realsense/lib'
+[2.617s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/my_realsense/bin'
+[2.618s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/my_realsense/lib/pkgconfig/my_realsense.pc'
+[2.619s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/my_realsense/lib/python3.10/site-packages'
+[2.619s] Level 1:colcon.colcon_core.shell:create_environment_hook('my_realsense', 'pythonpath')
+[2.620s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/my_realsense/share/my_realsense/hook/pythonpath.ps1'
+[2.621s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jetson/drone_project/install/my_realsense/share/my_realsense/hook/pythonpath.dsv'
+[2.622s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/my_realsense/share/my_realsense/hook/pythonpath.sh'
+[2.624s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/my_realsense/bin'
+[2.625s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(my_realsense)
+[2.626s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/my_realsense/share/my_realsense/package.ps1'
+[2.629s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/jetson/drone_project/install/my_realsense/share/my_realsense/package.dsv'
+[2.631s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/my_realsense/share/my_realsense/package.sh'
+[2.633s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/my_realsense/share/my_realsense/package.bash'
+[2.636s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/my_realsense/share/my_realsense/package.zsh'
+[2.638s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/jetson/drone_project/install/my_realsense/share/colcon-core/packages/my_realsense)
+[2.642s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/cv_control' for CMake module files
+[2.645s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/jetson/drone_project/src/cv_control' returned '0': PYTHONPATH=/home/jetson/drone_project/build/cv_control/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/cv_control build --build-base /home/jetson/drone_project/build/cv_control/build install --record /home/jetson/drone_project/build/cv_control/install.log --single-version-externally-managed install_data
+[2.645s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/cv_control' for CMake config files
+[2.648s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/cv_control/lib'
+[2.648s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/cv_control/bin'
+[2.648s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/cv_control/lib/pkgconfig/cv_control.pc'
+[2.649s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages'
+[2.649s] Level 1:colcon.colcon_core.shell:create_environment_hook('cv_control', 'pythonpath')
+[2.650s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/cv_control/share/cv_control/hook/pythonpath.ps1'
+[2.652s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jetson/drone_project/install/cv_control/share/cv_control/hook/pythonpath.dsv'
+[2.653s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jetson/drone_project/install/cv_control/share/cv_control/hook/pythonpath.sh'
+[2.655s] Level 1:colcon.colcon_core.environment:checking '/home/jetson/drone_project/install/cv_control/bin'
+[2.656s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(cv_control)
+[2.657s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/cv_control/share/cv_control/package.ps1'
+[2.659s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/jetson/drone_project/install/cv_control/share/cv_control/package.dsv'
+[2.660s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/cv_control/share/cv_control/package.sh'
+[2.662s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/cv_control/share/cv_control/package.bash'
+[2.663s] INFO:colcon.colcon_core.shell:Creating package script '/home/jetson/drone_project/install/cv_control/share/cv_control/package.zsh'
+[2.665s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/jetson/drone_project/install/cv_control/share/colcon-core/packages/cv_control)
+[2.666s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[2.667s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[2.667s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[2.667s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[2.686s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[2.686s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[2.686s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[2.724s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[2.726s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jetson/drone_project/install/local_setup.ps1'
+[2.730s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/jetson/drone_project/install/_local_setup_util_ps1.py'
+[2.735s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jetson/drone_project/install/setup.ps1'
+[2.739s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jetson/drone_project/install/local_setup.sh'
+[2.741s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/jetson/drone_project/install/_local_setup_util_sh.py'
+[2.743s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jetson/drone_project/install/setup.sh'
+[2.746s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jetson/drone_project/install/local_setup.bash'
+[2.748s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jetson/drone_project/install/setup.bash'
+[2.751s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jetson/drone_project/install/local_setup.zsh'
+[2.753s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jetson/drone_project/install/setup.zsh'

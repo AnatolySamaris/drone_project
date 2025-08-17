@@ -1,0 +1,2 @@
+[console_scripts]
+gesture_detector = cv_control.gesture_detector:main

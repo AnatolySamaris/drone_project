@@ -1,0 +1,17 @@
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control/utils.py
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control/gesture_detector.py
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control/__init__.py
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control/__pycache__/utils.cpython-310.pyc
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control/__pycache__/gesture_detector.cpython-310.pyc
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control/__pycache__/__init__.cpython-310.pyc
+/home/jetson/drone_project/install/cv_control/share/ament_index/resource_index/packages/cv_control
+/home/jetson/drone_project/install/cv_control/share/cv_control/package.xml
+/home/jetson/drone_project/install/cv_control/share/cv_control/models/gesture_classifier.pth
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info/entry_points.txt
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info/PKG-INFO
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info/top_level.txt
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info/zip-safe
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info/SOURCES.txt
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info/dependency_links.txt
+/home/jetson/drone_project/install/cv_control/lib/python3.10/site-packages/cv_control-0.0.0-py3.10.egg-info/requires.txt
+/home/jetson/drone_project/install/cv_control/lib/cv_control/gesture_detector
