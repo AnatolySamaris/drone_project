@@ -12,6 +12,8 @@ import torch
 import os
 import time
 
+
+
 #        8   12  16  20
 #        |   |   |   |
 #        7   11  15  19
@@ -29,12 +31,8 @@ class HandGestureDetector(Node):
     def __init__(self):
         super().__init__("hand_gesture_detector")
         
-        if torch.cuda.is_available():
-            self.device = "cuda"
-            self.get_logger().info("CUDA AVAILABLE")
-        else:
-            self.device = "cpu"
-            self.get_logger().warn("CPU ONLY AVAILABLE")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.get_logger().info(f"USING {self.device}")
 
         self.simulation = True
         self.get_logger().info(f"SIMULATION MODE: << {'on' if self.simulation else 'off'} >>")
@@ -80,7 +78,8 @@ class HandGestureDetector(Node):
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
         	max_num_hands=1,
-        	model_complexity=1
+        	model_complexity=1,
+        	static_image_mode=False
         )
         self.mp_draw = mp.solutions.drawing_utils
         self.cv_bridge = CvBridge()
@@ -168,14 +167,11 @@ class HandGestureDetector(Node):
     def process_frame(self):
         color_im = np.copy(self.last_color_frame)
         color_im = cv2.resize(color_im, (color_im.shape[1]//2, color_im.shape[0]//2))
-        #gray_im = cv2.cvtColor(color_im, cv2.COLOR_GRAY)
         
         depth_im = np.copy(self.last_depth_frame)
 
         mp_time = time.time()
-        #results = self.hands.process(cv2.cvtColor(color_im, cv2.COLOR_BGR2RGB))
         results = self.hands.process(color_im)
-        #self.get_logger().info(f"Process frame in {round((time.time() - mp_time)*1000, 2)} ms")
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
 
@@ -196,7 +192,9 @@ class HandGestureDetector(Node):
                     continue
                 
                 # Нормализация и предсказание
-                landmarks_norm = torch.Tensor(landmarks).to(self.device)
+                with torch.no_grad():
+                    landmarks_norm = torch.tensor(landmarks, dtype=torch.float32, device=self.device)
+                #landmarks_norm = torch.Tensor(landmarks).to(self.device)
                 classifier_output = self.model(landmarks_norm)
                 _, predicted = torch.max(classifier_output.data, 1)
                 gesture_id = predicted.item() + 1

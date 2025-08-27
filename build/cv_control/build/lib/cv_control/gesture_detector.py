@@ -9,8 +9,13 @@ from geometry_msgs.msg import Twist
 from cv_control.utils import ValueFilter, PlotWatcher, load_classifier_model
 import math
 import torch
+
 import os
 import time
+import threading
+from queue import Queue, Empty
+import time
+
 
 #        8   12  16  20
 #        |   |   |   |
@@ -29,12 +34,8 @@ class HandGestureDetector(Node):
     def __init__(self):
         super().__init__("hand_gesture_detector")
         
-        if torch.cuda.is_available():
-            self.device = "cuda"
-            self.get_logger().info("CUDA AVAILABLE")
-        else:
-            self.device = "cpu"
-            self.get_logger().warn("CPU ONLY AVAILABLE")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.get_logger().info(f"USING {self.device}")
 
         self.simulation = True
         self.get_logger().info(f"SIMULATION MODE: << {'on' if self.simulation else 'off'} >>")
@@ -80,8 +81,8 @@ class HandGestureDetector(Node):
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
         	max_num_hands=1,
-        	#use_prev_landmarks=True
-        	model_complexity=1
+        	model_complexity=1,
+        	static_image_mode=False
         )
         self.mp_draw = mp.solutions.drawing_utils
         self.cv_bridge = CvBridge()
@@ -91,6 +92,12 @@ class HandGestureDetector(Node):
         self.last_process_time = 0
         self.last_color_frame = None
         self.last_depth_frame = None
+        
+        self.frame_queue = Queue(maxsize=1)
+        self.running = True
+        self.worker_thread = threading.Thread(target=self.process_worker, daemon=True)
+        self.worker_thread.start()
+        self.get_logger().info("Worker thread started")
 
         # Визуализация управления
         self.show_camera_processing = True
@@ -161,22 +168,43 @@ class HandGestureDetector(Node):
             current_time = time.time()
             if (current_time - self.last_process_time) > 0.00001:
                 if self.last_color_frame is not None and self.last_depth_frame is not None:
-                    self.process_frame()
+                    frame_pair = (self.last_color_frame.copy(), depth_frame.copy())
+                    if not self.frame_queue.empty():
+                        try:
+                            self.frame_queue.get_nowait()
+                        except Empty:
+                            pass
+                    try:
+                        self.frame_queue.put_nowait(frame_pair)
+                    except:
+                        pass
 
         except Exception as e:
             self.get_logger().error(f"DEPTH ERROR: {e}")
+            
+    def process_worker(self):
+        while self.running and rclpy.ok():
+            try:
+                color_frame, depth_frame = self.frame_queue.get(timeout=1.0)
+                self.process_frame_from_worker(color_frame, depth_frame)
+                self.frame_queue.task_done()
+            except Empty:
+                continue
+            except Exception as e:
+                self.get_logger().error(f"Worker error: {e}")
+                continue
 
-    def process_frame(self):
-        color_im = np.copy(self.last_color_frame)
+    def process_frame_from_worker(self, color_frame, depth_frame):
+        color_im = color_frame
+        depth_im = depth_frame
+    
+        #color_im = np.copy(self.last_color_frame)
         color_im = cv2.resize(color_im, (color_im.shape[1]//2, color_im.shape[0]//2))
-        #gray_im = cv2.cvtColor(color_im, cv2.COLOR_GRAY)
         
-        depth_im = np.copy(self.last_depth_frame)
+        #depth_im = np.copy(self.last_depth_frame)
 
         mp_time = time.time()
-        #results = self.hands.process(cv2.cvtColor(color_im, cv2.COLOR_BGR2RGB))
         results = self.hands.process(color_im)
-        #self.get_logger().info(f"Process frame in {round((time.time() - mp_time)*1000, 2)} ms")
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
 
@@ -197,7 +225,9 @@ class HandGestureDetector(Node):
                     continue
                 
                 # Нормализация и предсказание
-                landmarks_norm = torch.Tensor(landmarks).to(self.device)
+                with torch.no_grad():
+                    landmarks_norm = torch.tensor(landmarks, dtype=torch.float32, device=self.device)
+                #landmarks_norm = torch.Tensor(landmarks).to(self.device)
                 classifier_output = self.model(landmarks_norm)
                 _, predicted = torch.max(classifier_output.data, 1)
                 gesture_id = predicted.item() + 1
@@ -473,8 +503,16 @@ class HandGestureDetector(Node):
 def main():
     rclpy.init()
     node = HandGestureDetector()
-    rclpy.spin(node)
-    rclpy.shutdown()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.running = False
+        node.worker_thread.join(timeout=2.0)
+        rclpy.shutdown()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
