@@ -252,8 +252,17 @@ class HandGestureDetector(Node):
 
         else:
             if self.show_camera_processing:
+
+                status_ = "DISARMED"
+                if self.takeoff: status_ = "TAKEOFF"
+                elif self.arm: status_ = "ARMED"
+
                 cv2.putText(
                     color_im, f"NO CONTROL", (10, 100),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                )
+                cv2.putText(
+                    color_im, status_, (10, 170),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                 )
             if self.takeoff:
