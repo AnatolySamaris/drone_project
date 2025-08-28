@@ -9,30 +9,32 @@ from geometry_msgs.msg import Twist
 from cv_control.utils import ValueFilter, PlotWatcher, load_classifier_model
 import math
 import torch
-import os
 import time
 
+"""
+
+[Command mode]
+OK
+|--- THUMBS UP      - Arm/Disarm
+|--- ONE            - Takeoff
+|--- TWO            - Land
+
+ROCK
+|--- ONE, ..., FIVE - Set speed (1 to 5)
+|--- THUMBS UP      - Control mode
 
 
-#        8   12  16  20
-#        |   |   |   |
-#        7   11  15  19
-#    4   |   |   |   |
-#    |   6   10  14  18
-#    3   |   |   |   |
-#    |   5---9---13--17
-#    2    \         /
-#     \    \       /
-#      1    \     /
-#       \    \   /
-#        ------0-
+[Control mode]
+|--- TWO            - Command mode
+
+"""
 
 class HandGestureDetector(Node):
     def __init__(self):
         super().__init__("hand_gesture_detector")
         
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.get_logger().info(f"USING {self.device}")
+        self.get_logger().info(f"USING {self.device.upper()}")
 
         self.simulation = True
         self.get_logger().info(f"SIMULATION MODE: << {'on' if self.simulation else 'off'} >>")
@@ -84,6 +86,16 @@ class HandGestureDetector(Node):
         self.mp_draw = mp.solutions.drawing_utils
         self.cv_bridge = CvBridge()
         self.get_logger().info("HAND DETECTOR CREATED")
+
+        # Для управления жестами
+        self.arm = False                # Заармлен или нет
+        self.takeoff = False            # В воздухе или нет
+        self.control_mode = False       # False - Command Mode
+        self.last_gesture = None
+
+        self.takeoff_height = 1         # Насколько взлетать в метрах
+        self.takeoff_land_period = 5    # Сколько секунд блокируется управление при takeoff/land
+        self.speed = 1
 
         # Для синхронизации
         self.last_process_time = 0
@@ -194,7 +206,6 @@ class HandGestureDetector(Node):
                 # Нормализация и предсказание
                 with torch.no_grad():
                     landmarks_norm = torch.tensor(landmarks, dtype=torch.float32, device=self.device)
-                #landmarks_norm = torch.Tensor(landmarks).to(self.device)
                 classifier_output = self.model(landmarks_norm)
                 _, predicted = torch.max(classifier_output.data, 1)
                 gesture_id = predicted.item() + 1
@@ -207,26 +218,49 @@ class HandGestureDetector(Node):
                     )
                 
                 # Управление дроном
-                throttle, roll, pitch, yaw = self.calculate_angles(hand_landmarks, depth_im)
-                t, p, r, y = self.publish_command(gesture_id, throttle, roll, pitch, yaw)
-                t, p, r, y = round(t, 2), round(p, 2), round(r, 2), round(y, 2)
+                if self.takeoff and self.control_mode:  # Дрон в воздухе, Control Mode
+                    if gesture_id == 2: # Выход в Command Mode
+                        self.control_mode = False
+                    else:   # Управление
+                        throttle, roll, pitch, yaw = self.calculate_angles(hand_landmarks, depth_im)
+                        t, p, r, y = self.publish_control(throttle, roll, pitch, yaw)
+                        t, p, r, y = round(t, 2), round(p, 2), round(r, 2), round(y, 2)
+                        if self.show_camera_processing:
+                            cv2.putText(
+                                color_im, f"Throttle = {t}, pitch = {p}, roll = {r}, yaw = {y}",
+                                (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                            )
+                else:
+                    if self.last_gesture == 6:   # OK
+                        if gesture_id == 8: # THUMBS UP
+                            self.publish_command('disarm' if self.arm else 'arm')
+                        elif gesture_id == 1:   # Takeoff
+                            self.publish_command('takeoff')
+                        elif gesture_id == 2:   #  Land
+                            self.publish_command('land')
+                        else:
+                            pass
+                    elif self.last_gesture == 7:    # ROCK
+                        if gesture_id in [1, 2, 3, 4, 5]:   # SPEED
+                            self.publish_command('speed', gesture_id)
+                        elif gesture_id == 8:   # THUMBS UP
+                            self.control_mode = True
+                        else:
+                            pass
 
-                if self.show_camera_processing:
-                    cv2.putText(
-                        color_im, f"Throttle = {t}, pitch = {p}, roll = {r}, yaw = {y}",
-                        (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
-                    )
+                self.last_gesture = gesture_id
+
         else:
             if self.show_camera_processing:
                 cv2.putText(
                     color_im, f"NO CONTROL", (10, 100),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                 )
-            self.publish_command(   # Дрон висит в воздухе если нет команд
-                1, 
-                10 * (self.max_palm_height + self.min_palm_height) / 2, 
-                0, 0, 0
-            )
+            if self.takeoff:
+                self.publish_control(   # Дрон висит в воздухе если нет команд
+                    10 * (self.max_palm_height + self.min_palm_height) / 2, 
+                    0, 0, 0
+                )
 
         if self.show_camera_processing:
             cv2.imshow("Hand Tracking", color_im)
@@ -368,29 +402,42 @@ class HandGestureDetector(Node):
 
         return filtered_throttle, filtered_roll, filtered_pitch, filtered_yaw
     
-    def publish_command(self, gesture_id, throttle, roll, pitch, yaw):
+    def publish_control(self, throttle, roll, pitch, yaw):
         cmd = Twist()
-
-        # Управление скоростью
-        # if gesture_id in [1, 2, 3, 4, 5]:
-        #     self.speed = gesture_id
 
         throttle, roll, pitch, yaw = self.calculate_control(
             throttle, roll, pitch, yaw
         )
 
+        speed_coef = self.speed / 5 # Для учета заданной скорости
+
         # Визуализация управления
         self.update_control_panel(throttle, roll, pitch, yaw)
 
         # Передача управления на коптер
-        cmd.linear.z = float(throttle)
-        cmd.linear.x = float(pitch)
-        cmd.linear.y = float(roll) if not self.simulation else -float(roll)
-        cmd.angular.z = float(yaw)
+        cmd.linear.z = float(speed_coef * throttle)
+        cmd.linear.x = float(speed_coef * pitch)
+        cmd.linear.y = float(speed_coef * roll) if not self.simulation else -float(speed_coef * roll)
+        cmd.angular.z = float(speed_coef * yaw)
 
         self.cmd_pub.publish(cmd)
 
         return cmd.linear.z, cmd.linear.x, cmd.linear.y, cmd.angular.z
+    
+    def publish_command(self, command: str, value: int = 0) -> bool:
+        if command == 'arm':
+            return True
+        elif command == 'disarm':
+            return True
+        elif command == 'takeoff':
+            return True
+        elif command == 'land':
+            return True
+        elif command == 'speed' and value in [1, 2, 3, 4, 5]:
+            return True
+        else:
+            self.get_logger().error(f'UNKNOWN COMMAND "{command}"')
+            return False
     
     def update_control_panel(self, throttle, roll, pitch, yaw) -> None:
         def draw_crosshair(img, center, size, x_label, y_label, x_val, y_val):
