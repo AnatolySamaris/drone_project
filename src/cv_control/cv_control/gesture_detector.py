@@ -36,8 +36,10 @@ class HandGestureDetector(Node):
         
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.get_logger().info(f"USING {self.device.upper()}")
-
-        self.simulation = True
+        
+        self.safe_speed = 2
+        self.safe_mode = True	# speed always = safe_speed
+        self.simulation = False
         self.get_logger().info(f"SIMULATION MODE: << {'on' if self.simulation else 'off'} >>")
 
         # Внутренние параметры камеры
@@ -49,10 +51,6 @@ class HandGestureDetector(Node):
         self.sign_names = {
             1: 'one', 2: 'two', 3: 'three', 4: 'four', 
             5: 'five', 6: 'ok', 7: 'rock', 8: 'thumbs_up'
-        }
-
-        self.speed_threshold = {
-            1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0
         }
 
         self.min_angle_degrees = 5 # Минимальное значение эйлерова угла
@@ -102,7 +100,10 @@ class HandGestureDetector(Node):
         self.takeoff = False            # В воздухе или нет
         self.control_mode = False       # False - Command Mode
         self.last_gesture = None
-
+        self.last_subgesture = None
+        
+        self.control_timer = None
+        self.control_timer_duration = 8
         self.takeoff_height = 1         # Насколько взлетать в метрах
         self.takeoff_land_period = 5    # Сколько секунд блокируется управление при takeoff/land
         self.speed = 1
@@ -114,7 +115,7 @@ class HandGestureDetector(Node):
 
         # Визуализация управления
         self.show_camera_processing = True
-        self.control_panel_size = 400 #600
+        self.control_panel_size = 300 #600
         self.control_panel_height = self.control_panel_size
         self.control_panel_width = int(1.8 * self.control_panel_size)
         self.control_panel = None
@@ -174,7 +175,7 @@ class HandGestureDetector(Node):
             self.get_logger().error(f"COLOR ERROR: {e}")
     
     def depth_callback(self, msg):
-        try:
+        #try:
             depth_frame = self.cv_bridge.imgmsg_to_cv2(msg, msg.encoding)   # 16UC1
             self.last_depth_frame = depth_frame
             
@@ -183,17 +184,23 @@ class HandGestureDetector(Node):
                 if self.last_color_frame is not None and self.last_depth_frame is not None:
                     self.process_frame()
 
-        except Exception as e:
-            self.get_logger().error(f"DEPTH ERROR: {e}")
+        #except Exception as e:
+            #self.get_logger().error(f"DEPTH ERROR: {e}")
 
     def process_frame(self):
         color_im = np.copy(self.last_color_frame)
-        color_im = cv2.resize(color_im, (color_im.shape[1]//2, color_im.shape[0]//2))
+        #color_im = cv2.resize(color_im, (color_im.shape[1]//2, color_im.shape[0]//2))
         
         depth_im = np.copy(self.last_depth_frame)
 
         mp_time = time.time()
         results = self.hands.process(color_im)
+        
+        if self.control_timer:
+            if time.time() - self.control_timer >= self.control_timer_duration:
+                self.control_timer = None
+                self.control_mode = True
+        
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
 
@@ -226,39 +233,91 @@ class HandGestureDetector(Node):
                         color_im, f"Gesture: {gesture_id} ({self.sign_names[gesture_id]})", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                     )
+                if self.control_timer:
+                    cv2.putText(
+                        color_im, f"Start control in {round(self.control_timer_duration - (time.time() - self.control_timer))} sec",
+                        (10, 280), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                    )
                 
                 # Управление дроном
-                if self.takeoff and self.control_mode:  # Дрон в воздухе, Control Mode
+                if self.takeoff and (self.control_mode or self.control_timer):  # Дрон в воздухе, Control Mode
                     if gesture_id == 2: # Выход в Command Mode
                         self.control_mode = False
                     else:   # Управление
                         throttle, roll, pitch, yaw = self.calculate_angles(hand_landmarks, depth_im)
+                        
+                        throttle = 10 * (self.max_palm_height + self.min_palm_height) / 2
+                        roll = 0
+                        pitch = 0
+                        
                         t, p, r, y = self.publish_control(throttle, roll, pitch, yaw)
                         t, p, r, y = round(t, 2), round(p, 2), round(r, 2), round(y, 2)
+                        
                         if self.show_camera_processing:
+                            status_ = "DISARMED"
+                            if self.takeoff: status_ = "TAKEOFF"
+                            elif self.arm: status_ = "ARMED"
+                            if self.last_gesture:
+                                status_ += f" ({self.sign_names[self.last_gesture]})"
                             cv2.putText(
-                                color_im, f"Throttle = {t}, pitch = {p}, roll = {r}, yaw = {y}",
-                                (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                                color_im, f"Throttle = {t}, pitch = {p}",
+                                (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                            )
+                            cv2.putText(
+                                color_im, f"roll = {r}, yaw = {y}",
+                                (10, 130), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                            )
+                            cv2.putText(
+                                color_im, status_, (10, 180),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                            )
+                            cv2.putText(
+                                color_im, f"Speed: {self.speed}", (10, 230),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                             )
                 else:
                     if self.last_gesture == 6:   # OK
-                        if gesture_id == 8: # THUMBS UP
+                        if gesture_id == 8 and self.last_subgesture != 8: # THUMBS UP
                             self.publish_command('disarm' if self.arm else 'arm')
-                        elif gesture_id == 1:   # Takeoff
+                            self.last_subgesture = gesture_id
+                            self.last_gesture = None
+                        elif gesture_id == 1 and self.last_subgesture != 1:   # Takeoff
                             self.publish_command('takeoff')
-                        elif gesture_id == 2:   #  Land
+                            self.last_subgesture = gesture_id
+                            self.last_gesture = None
+                        elif gesture_id == 2 and self.last_subgesture != 2:   #  Land
                             self.publish_command('land')
+                            self.last_subgesture = gesture_id
+                            self.last_gesture = None
                         else:
                             pass
                     elif self.last_gesture == 7:    # ROCK
-                        if gesture_id in [1, 2, 3, 4, 5]:   # SPEED
+                        if gesture_id in [1, 2, 3, 4, 5] and self.last_subgesture != gesture_id:   # SPEED
                             self.publish_command('speed', gesture_id)
-                        elif gesture_id == 8:   # THUMBS UP
-                            self.control_mode = True
+                            self.last_subgesture = gesture_id
+                            self.last_gesture = None
+                        elif gesture_id == 8 and self.last_subgesture != 8:   # THUMBS UP
+                            self.control_timer = time.time()
+                            self.last_subgesture == gesture_id
+                            self.last_gesture = None
                         else:
                             pass
-
-                self.last_gesture = gesture_id
+                    if self.show_camera_processing:
+                        status_ = "DISARMED"
+                        if self.takeoff: status_ = "TAKEOFF"
+                        elif self.arm: status_ = "ARMED"
+                        if self.last_gesture:
+                            status_ += f" ({self.sign_names[self.last_gesture]})"
+                        cv2.putText(
+                            color_im, status_, (10, 180),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                        )
+                        cv2.putText(
+                            color_im, f"Speed: {self.speed}", (10, 230),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                        )
+                if gesture_id in [6, 7]:
+                    self.last_gesture = gesture_id
 
         else:
             if self.show_camera_processing:
@@ -266,14 +325,25 @@ class HandGestureDetector(Node):
                 status_ = "DISARMED"
                 if self.takeoff: status_ = "TAKEOFF"
                 elif self.arm: status_ = "ARMED"
+                if self.last_gesture:
+                    status_ += f" ({self.sign_names[self.last_gesture]})"
 
                 cv2.putText(
-                    color_im, f"NO CONTROL", (10, 100),
+                    color_im, f"NO CONTROL", (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                 )
                 cv2.putText(
-                    color_im, status_, (10, 170),
+                    color_im, status_, (10, 180),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                )
+                cv2.putText(
+                    color_im, f"Speed: {self.speed}", (10, 230),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                )
+                if self.control_timer:
+                    cv2.putText(
+                        color_im, f"Start control in {round(self.control_timer_duration - (time.time() - self.control_timer))} sec",
+                        (10, 280), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                 )
             if self.takeoff:
                 self.publish_control(   # Дрон висит в воздухе если нет команд
@@ -448,14 +518,21 @@ class HandGestureDetector(Node):
     
     def publish_command(self, command: str, value: int = 0) -> bool:
         if command == 'arm':
+            self.arm = True
             return True
         elif command == 'disarm':
+            self.arm = False
             return True
         elif command == 'takeoff':
+            self.publisher_takeoff.publish(Empty())
+            self.takeoff = True
             return True
         elif command == 'land':
+            self.publisher_land.publish(Empty())
+            self.takeoff = False
             return True
         elif command == 'speed' and value in [1, 2, 3, 4, 5]:
+            self.speed = self.safe_speed if self.safe_mode else value
             return True
         else:
             self.get_logger().error(f'UNKNOWN COMMAND "{command}"')
