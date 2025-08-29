@@ -37,7 +37,8 @@ class HandGestureDetector(Node):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.get_logger().info(f"USING {self.device.upper()}")
         
-        self.safe_mode = True	# speed always = 1
+        self.safe_speed = 5
+        self.safe_mode = True	# speed always = safe_speed
         self.simulation = False
         self.get_logger().info(f"SIMULATION MODE: << {'on' if self.simulation else 'off'} >>")
 
@@ -246,8 +247,6 @@ class HandGestureDetector(Node):
                         throttle, roll, pitch, yaw = self.calculate_angles(hand_landmarks, depth_im)
                         
                         throttle = 10 * (self.max_palm_height + self.min_palm_height) / 2
-                        roll = 0
-                        pitch = 0
                         
                         t, p, r, y = self.publish_control(throttle, roll, pitch, yaw)
                         t, p, r, y = round(t, 2), round(p, 2), round(r, 2), round(y, 2)
@@ -531,7 +530,7 @@ class HandGestureDetector(Node):
             self.takeoff = False
             return True
         elif command == 'speed' and value in [1, 2, 3, 4, 5]:
-            self.speed = 1 if self.safe_mode else value
+            self.speed = self.safe_speed if self.safe_mode else value
             return True
         else:
             self.get_logger().error(f'UNKNOWN COMMAND "{command}"')
