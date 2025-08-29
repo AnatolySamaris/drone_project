@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import String, Empty
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge import CvBridge
 import cv2
@@ -50,6 +51,10 @@ class HandGestureDetector(Node):
             5: 'five', 6: 'ok', 7: 'rock', 8: 'thumbs_up'
         }
 
+        self.speed_threshold = {
+            1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0
+        }
+
         self.min_angle_degrees = 5 # Минимальное значение эйлерова угла
         self.max_angle_degrees = 30 # Максимальное значение эйлерова угла
         self.min_palm_height = 15   # Минимальное расстояние от камеры в сантиметрах
@@ -74,6 +79,11 @@ class HandGestureDetector(Node):
 
         # Паблишеры
         self.cmd_pub = self.create_publisher(Twist, "/x500/cmd_vel", 10)
+        self.publisher_land = self.create_publisher(Empty, 'land', 1)
+        #self.publisher_flip = self.create_publisher(String, 'flip', 1)
+        self.publisher_takeoff = self.create_publisher(Empty, 'takeoff', 1)
+        self.publisher_velocity = self.create_publisher(Twist, 'control', 1)
+        self.publisher_emergency = self.create_publisher(Empty, 'emergency', 1)
         self.get_logger().info("PUBLISHERS CREATED")
         
         # MediaPipe
@@ -418,10 +428,10 @@ class HandGestureDetector(Node):
             throttle, roll, pitch, yaw
         )
 
-        speed_coef = self.speed / 5 # Для учета заданной скорости
-
         # Визуализация управления
         self.update_control_panel(throttle, roll, pitch, yaw)
+
+        speed_coef = 10 * self.speed
 
         # Передача управления на коптер
         cmd.linear.z = float(speed_coef * throttle)
@@ -429,7 +439,10 @@ class HandGestureDetector(Node):
         cmd.linear.y = float(speed_coef * roll) if not self.simulation else -float(speed_coef * roll)
         cmd.angular.z = float(speed_coef * yaw)
 
-        self.cmd_pub.publish(cmd)
+        if self.simulation:
+            self.cmd_pub.publish(cmd)
+        else:
+            self.publisher_velocity.publish(cmd)
 
         return cmd.linear.z, cmd.linear.x, cmd.linear.y, cmd.angular.z
     

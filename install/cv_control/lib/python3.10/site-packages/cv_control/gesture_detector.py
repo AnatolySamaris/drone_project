@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import String, Empty
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge import CvBridge
 import cv2
@@ -9,33 +10,32 @@ from geometry_msgs.msg import Twist
 from cv_control.utils import ValueFilter, PlotWatcher, load_classifier_model
 import math
 import torch
-
-import os
-import time
-import threading
-from queue import Queue, Empty
 import time
 
+"""
 
-#        8   12  16  20
-#        |   |   |   |
-#        7   11  15  19
-#    4   |   |   |   |
-#    |   6   10  14  18
-#    3   |   |   |   |
-#    |   5---9---13--17
-#    2    \         /
-#     \    \       /
-#      1    \     /
-#       \    \   /
-#        ------0-
+[Command mode]
+OK
+|--- THUMBS UP      - Arm/Disarm
+|--- ONE            - Takeoff
+|--- TWO            - Land
+
+ROCK
+|--- ONE, ..., FIVE - Set speed (1 to 5)
+|--- THUMBS UP      - Control mode
+
+
+[Control mode]
+|--- TWO            - Command mode
+
+"""
 
 class HandGestureDetector(Node):
     def __init__(self):
         super().__init__("hand_gesture_detector")
         
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.get_logger().info(f"USING {self.device}")
+        self.get_logger().info(f"USING {self.device.upper()}")
 
         self.simulation = True
         self.get_logger().info(f"SIMULATION MODE: << {'on' if self.simulation else 'off'} >>")
@@ -49,6 +49,10 @@ class HandGestureDetector(Node):
         self.sign_names = {
             1: 'one', 2: 'two', 3: 'three', 4: 'four', 
             5: 'five', 6: 'ok', 7: 'rock', 8: 'thumbs_up'
+        }
+
+        self.speed_threshold = {
+            1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0
         }
 
         self.min_angle_degrees = 5 # Минимальное значение эйлерова угла
@@ -75,6 +79,11 @@ class HandGestureDetector(Node):
 
         # Паблишеры
         self.cmd_pub = self.create_publisher(Twist, "/x500/cmd_vel", 10)
+        self.publisher_land = self.create_publisher(Empty, 'land', 1)
+        #self.publisher_flip = self.create_publisher(String, 'flip', 1)
+        self.publisher_takeoff = self.create_publisher(Empty, 'takeoff', 1)
+        self.publisher_velocity = self.create_publisher(Twist, 'control', 1)
+        self.publisher_emergency = self.create_publisher(Empty, 'emergency', 1)
         self.get_logger().info("PUBLISHERS CREATED")
         
         # MediaPipe
@@ -88,16 +97,20 @@ class HandGestureDetector(Node):
         self.cv_bridge = CvBridge()
         self.get_logger().info("HAND DETECTOR CREATED")
 
+        # Для управления жестами
+        self.arm = False                # Заармлен или нет
+        self.takeoff = False            # В воздухе или нет
+        self.control_mode = False       # False - Command Mode
+        self.last_gesture = None
+
+        self.takeoff_height = 1         # Насколько взлетать в метрах
+        self.takeoff_land_period = 5    # Сколько секунд блокируется управление при takeoff/land
+        self.speed = 1
+
         # Для синхронизации
         self.last_process_time = 0
         self.last_color_frame = None
         self.last_depth_frame = None
-        
-        self.frame_queue = Queue(maxsize=1)
-        self.running = True
-        self.worker_thread = threading.Thread(target=self.process_worker, daemon=True)
-        self.worker_thread.start()
-        self.get_logger().info("Worker thread started")
 
         # Визуализация управления
         self.show_camera_processing = True
@@ -168,40 +181,16 @@ class HandGestureDetector(Node):
             current_time = time.time()
             if (current_time - self.last_process_time) > 0.00001:
                 if self.last_color_frame is not None and self.last_depth_frame is not None:
-                    frame_pair = (self.last_color_frame.copy(), depth_frame.copy())
-                    if not self.frame_queue.empty():
-                        try:
-                            self.frame_queue.get_nowait()
-                        except Empty:
-                            pass
-                    try:
-                        self.frame_queue.put_nowait(frame_pair)
-                    except:
-                        pass
+                    self.process_frame()
 
         except Exception as e:
             self.get_logger().error(f"DEPTH ERROR: {e}")
-            
-    def process_worker(self):
-        while self.running and rclpy.ok():
-            try:
-                color_frame, depth_frame = self.frame_queue.get(timeout=1.0)
-                self.process_frame_from_worker(color_frame, depth_frame)
-                self.frame_queue.task_done()
-            except Empty:
-                continue
-            except Exception as e:
-                self.get_logger().error(f"Worker error: {e}")
-                continue
 
-    def process_frame_from_worker(self, color_frame, depth_frame):
-        color_im = color_frame
-        depth_im = depth_frame
-    
-        #color_im = np.copy(self.last_color_frame)
+    def process_frame(self):
+        color_im = np.copy(self.last_color_frame)
         color_im = cv2.resize(color_im, (color_im.shape[1]//2, color_im.shape[0]//2))
         
-        #depth_im = np.copy(self.last_depth_frame)
+        depth_im = np.copy(self.last_depth_frame)
 
         mp_time = time.time()
         results = self.hands.process(color_im)
@@ -227,7 +216,6 @@ class HandGestureDetector(Node):
                 # Нормализация и предсказание
                 with torch.no_grad():
                     landmarks_norm = torch.tensor(landmarks, dtype=torch.float32, device=self.device)
-                #landmarks_norm = torch.Tensor(landmarks).to(self.device)
                 classifier_output = self.model(landmarks_norm)
                 _, predicted = torch.max(classifier_output.data, 1)
                 gesture_id = predicted.item() + 1
@@ -240,26 +228,58 @@ class HandGestureDetector(Node):
                     )
                 
                 # Управление дроном
-                throttle, roll, pitch, yaw = self.calculate_angles(hand_landmarks, depth_im)
-                t, p, r, y = self.publish_command(gesture_id, throttle, roll, pitch, yaw)
-                t, p, r, y = round(t, 2), round(p, 2), round(r, 2), round(y, 2)
+                if self.takeoff and self.control_mode:  # Дрон в воздухе, Control Mode
+                    if gesture_id == 2: # Выход в Command Mode
+                        self.control_mode = False
+                    else:   # Управление
+                        throttle, roll, pitch, yaw = self.calculate_angles(hand_landmarks, depth_im)
+                        t, p, r, y = self.publish_control(throttle, roll, pitch, yaw)
+                        t, p, r, y = round(t, 2), round(p, 2), round(r, 2), round(y, 2)
+                        if self.show_camera_processing:
+                            cv2.putText(
+                                color_im, f"Throttle = {t}, pitch = {p}, roll = {r}, yaw = {y}",
+                                (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                            )
+                else:
+                    if self.last_gesture == 6:   # OK
+                        if gesture_id == 8: # THUMBS UP
+                            self.publish_command('disarm' if self.arm else 'arm')
+                        elif gesture_id == 1:   # Takeoff
+                            self.publish_command('takeoff')
+                        elif gesture_id == 2:   #  Land
+                            self.publish_command('land')
+                        else:
+                            pass
+                    elif self.last_gesture == 7:    # ROCK
+                        if gesture_id in [1, 2, 3, 4, 5]:   # SPEED
+                            self.publish_command('speed', gesture_id)
+                        elif gesture_id == 8:   # THUMBS UP
+                            self.control_mode = True
+                        else:
+                            pass
 
-                if self.show_camera_processing:
-                    cv2.putText(
-                        color_im, f"Throttle = {t}, pitch = {p}, roll = {r}, yaw = {y}",
-                        (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
-                    )
+                self.last_gesture = gesture_id
+
         else:
             if self.show_camera_processing:
+
+                status_ = "DISARMED"
+                if self.takeoff: status_ = "TAKEOFF"
+                elif self.arm: status_ = "ARMED"
+
                 cv2.putText(
                     color_im, f"NO CONTROL", (10, 100),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
                 )
-            self.publish_command(   # Дрон висит в воздухе если нет команд
-                1, 
-                10 * (self.max_palm_height + self.min_palm_height) / 2, 
-                0, 0, 0
-            )
+                cv2.putText(
+                    color_im, status_, (10, 170),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
+                )
+            if self.takeoff:
+                self.publish_control(   # Дрон висит в воздухе если нет команд
+                    10 * (self.max_palm_height + self.min_palm_height) / 2, 
+                    0, 0, 0
+                )
 
         if self.show_camera_processing:
             cv2.imshow("Hand Tracking", color_im)
@@ -401,12 +421,8 @@ class HandGestureDetector(Node):
 
         return filtered_throttle, filtered_roll, filtered_pitch, filtered_yaw
     
-    def publish_command(self, gesture_id, throttle, roll, pitch, yaw):
+    def publish_control(self, throttle, roll, pitch, yaw):
         cmd = Twist()
-
-        # Управление скоростью
-        # if gesture_id in [1, 2, 3, 4, 5]:
-        #     self.speed = gesture_id
 
         throttle, roll, pitch, yaw = self.calculate_control(
             throttle, roll, pitch, yaw
@@ -415,15 +431,35 @@ class HandGestureDetector(Node):
         # Визуализация управления
         self.update_control_panel(throttle, roll, pitch, yaw)
 
-        # Передача управления на коптер
-        cmd.linear.z = float(throttle)
-        cmd.linear.x = float(pitch)
-        cmd.linear.y = float(roll) if not self.simulation else -float(roll)
-        cmd.angular.z = float(yaw)
+        speed_coef = 10 * self.speed
 
-        self.cmd_pub.publish(cmd)
+        # Передача управления на коптер
+        cmd.linear.z = float(speed_coef * throttle)
+        cmd.linear.x = float(speed_coef * pitch)
+        cmd.linear.y = float(speed_coef * roll) if not self.simulation else -float(speed_coef * roll)
+        cmd.angular.z = float(speed_coef * yaw)
+
+        if self.simulation:
+            self.cmd_pub.publish(cmd)
+        else:
+            self.publisher_velocity.publish(cmd)
 
         return cmd.linear.z, cmd.linear.x, cmd.linear.y, cmd.angular.z
+    
+    def publish_command(self, command: str, value: int = 0) -> bool:
+        if command == 'arm':
+            return True
+        elif command == 'disarm':
+            return True
+        elif command == 'takeoff':
+            return True
+        elif command == 'land':
+            return True
+        elif command == 'speed' and value in [1, 2, 3, 4, 5]:
+            return True
+        else:
+            self.get_logger().error(f'UNKNOWN COMMAND "{command}"')
+            return False
     
     def update_control_panel(self, throttle, roll, pitch, yaw) -> None:
         def draw_crosshair(img, center, size, x_label, y_label, x_val, y_val):
@@ -503,16 +539,8 @@ class HandGestureDetector(Node):
 def main():
     rclpy.init()
     node = HandGestureDetector()
-    
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.running = False
-        node.worker_thread.join(timeout=2.0)
-        rclpy.shutdown()
-        cv2.destroyAllWindows()
+    rclpy.spin(node)
+    rclpy.shutdown()
 
 if __name__ == "__main__":
     main()
